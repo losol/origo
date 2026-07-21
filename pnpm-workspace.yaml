@@ -1,0 +1,15 @@
+packages:
+  - config/*
+  - packages/*
+  - '!**/dist'
+  - '!**/node_modules'
+
+# Supply-chain protection: do not resolve packages published less than 10 days
+# ago. Mirrors the window used in the eventuras and ratio-ui repos.
+minimumReleaseAge: 14400
+minimumReleaseAgeStrict: false
+
+peerDependencyRules:
+  ignoreMissing:
+    - '@types/react'
+    - '@types/react-dom'
