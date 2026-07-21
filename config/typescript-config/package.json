@@ -2,14 +2,14 @@
   "name": "@eventuras/typescript-config",
   "version": "1.0.0",
   "description": "Shared TypeScript configurations for Eventuras projects",
-  "homepage": "https://github.com/losol/eventuras/tree/main/libs/typescript-config#readme",
+  "homepage": "https://github.com/losol/origo/tree/main/config/typescript-config#readme",
   "bugs": {
-    "url": "https://github.com/losol/eventuras/issues"
+    "url": "https://github.com/losol/origo/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/losol/eventuras.git",
-    "directory": "libs/typescript-config"
+    "url": "https://github.com/losol/origo.git",
+    "directory": "config/typescript-config"
   },
   "license": "MIT",
   "files": [

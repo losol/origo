@@ -1,8 +1,12 @@
 {
   "name": "@eventuras/vite-config",
   "version": "0.2.2",
-  "private": true,
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/losol/origo.git",
+    "directory": "config/vite-config"
+  },
   "type": "module",
   "exports": {
     "./base": "./src/base.ts",
@@ -10,6 +14,9 @@
     "./vanilla-lib": "./src/vanilla-lib.ts",
     "./next-lib": "./src/next-lib.ts"
   },
+  "files": [
+    "src"
+  ],
   "dependencies": {
     "@tailwindcss/vite": "^4.3.2",
     "@vitejs/plugin-react": "^6.0.3",

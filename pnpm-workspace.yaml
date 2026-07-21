@@ -4,6 +4,12 @@ packages:
   - '!**/dist'
   - '!**/node_modules'
 
+# Allow-list of packages whose install scripts may run.
+# @swc/core arrives via @vitejs/plugin-react-swc; allowed in eventuras and
+# ratio-ui too.
+allowBuilds:
+  '@swc/core': true
+
 # Supply-chain protection: do not resolve packages published less than 10 days
 # ago. Mirrors the window used in the eventuras and ratio-ui repos.
 minimumReleaseAge: 14400
