@@ -1,8 +1,17 @@
 {
   "name": "@eventuras/core",
   "version": "0.4.0",
-  "private": "true",
+  "private": true,
   "description": "Core utilities for Eventuras",
+  "homepage": "https://github.com/losol/origo/tree/main/packages/core#readme",
+  "bugs": {
+    "url": "https://github.com/losol/origo/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/losol/origo.git",
+    "directory": "packages/core"
+  },
   "type": "module",
   "exports": {
     "./regex": {
@@ -39,6 +48,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
+    "@eventuras/eslint-config": "workspace:*",
+    "@eventuras/typescript-config": "workspace:*",
     "@eventuras/vite-config": "workspace:*",
     "vite": "^8.1.0"
   }

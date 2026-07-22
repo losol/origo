@@ -10,14 +10,14 @@
     "opentelemetry",
     "otel"
   ],
-  "homepage": "https://github.com/losol/eventuras/tree/main/libs/logger#readme",
+  "homepage": "https://github.com/losol/origo/tree/main/packages/logger#readme",
   "bugs": {
-    "url": "https://github.com/losol/eventuras/issues"
+    "url": "https://github.com/losol/origo/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/losol/eventuras.git",
-    "directory": "libs/logger"
+    "url": "https://github.com/losol/origo.git",
+    "directory": "packages/logger"
   },
   "license": "Apache-2.0",
   "type": "module",
@@ -50,6 +50,8 @@
     "pino": "^10.3.1"
   },
   "devDependencies": {
+    "@eventuras/eslint-config": "workspace:*",
+    "@eventuras/typescript-config": "workspace:*",
     "@eventuras/vite-config": "workspace:*",
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/api-logs": "^0.219.0",

@@ -9,6 +9,7 @@ packages:
 # ratio-ui too.
 allowBuilds:
   '@swc/core': true
+  sharp: true
 
 # Supply-chain protection: do not resolve packages published less than 10 days
 # ago. Mirrors the window used in the eventuras and ratio-ui repos.
