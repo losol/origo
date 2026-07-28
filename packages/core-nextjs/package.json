@@ -1,7 +1,6 @@
 {
   "name": "@eventuras/core-nextjs",
   "version": "0.1.3",
-  "private": true,
   "description": "Core Next.js utilities for Eventuras",
   "homepage": "https://github.com/losol/origo/tree/main/packages/core-nextjs#readme",
   "bugs": {
@@ -12,6 +11,7 @@
     "url": "https://github.com/losol/origo.git",
     "directory": "packages/core-nextjs"
   },
+  "license": "MIT",
   "type": "module",
   "exports": {
     "./actions": {

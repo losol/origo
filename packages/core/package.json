@@ -1,7 +1,6 @@
 {
   "name": "@eventuras/core",
   "version": "0.4.0",
-  "private": true,
   "description": "Core utilities for Eventuras",
   "homepage": "https://github.com/losol/origo/tree/main/packages/core#readme",
   "bugs": {
@@ -12,6 +11,7 @@
     "url": "https://github.com/losol/origo.git",
     "directory": "packages/core"
   },
+  "license": "MIT",
   "type": "module",
   "exports": {
     "./regex": {
