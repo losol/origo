@@ -9,14 +9,33 @@
   },
   "type": "module",
   "exports": {
-    "./base": "./src/base.ts",
-    "./react-lib": "./src/react-lib.ts",
-    "./vanilla-lib": "./src/vanilla-lib.ts",
-    "./next-lib": "./src/next-lib.ts"
+    "./base": {
+      "types": "./dist/base.d.ts",
+      "import": "./dist/base.js"
+    },
+    "./react-lib": {
+      "types": "./dist/react-lib.d.ts",
+      "import": "./dist/react-lib.js"
+    },
+    "./vanilla-lib": {
+      "types": "./dist/vanilla-lib.d.ts",
+      "import": "./dist/vanilla-lib.js"
+    },
+    "./next-lib": {
+      "types": "./dist/next-lib.d.ts",
+      "import": "./dist/next-lib.js"
+    }
   },
   "files": [
-    "src"
+    "dist"
   ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "dev": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepack": "npm run clean && npm run build"
+  },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.2",
     "@vitejs/plugin-react": "^6.0.3",
@@ -25,6 +44,8 @@
     "vite-plugin-dts": "^5.0.3"
   },
   "devDependencies": {
+    "@eventuras/typescript-config": "workspace:*",
+    "@types/node": "^24.12.0",
     "typescript": "^6.0.2",
     "vite": "^8.1.0"
   },

@@ -33,24 +33,10 @@ jobs:
       - name: Build
         run: pnpm build
 
-      # The config packages ship source rather than build output, so nothing
-      # else here would catch a broken "files" field or export path — it would
-      # only surface as a half-empty tarball after publishing.
+      # Workspace consumers resolve packages through a symlink to the source
+      # directory, so a broken "files" field or an export pointing at a file
+      # that is never published is invisible here — it only breaks for people
+      # installing from the registry. This packs every package and checks the
+      # export targets against the actual tarball contents.
       - name: Verify packaging
-        run: |
-          set -euo pipefail
-          # `find` rather than a glob: packages/ may not exist yet, and an
-          # unmatched glob behaves differently across shells. Process
-          # substitution keeps the loop in this shell so failures propagate.
-          status=0
-          while IFS= read -r manifest; do
-            [ -n "$manifest" ] || continue
-            dir=$(dirname "$manifest")
-            if [ "$(node -p "require('./$manifest').private === true")" = "true" ]; then
-              echo "skip (private): $dir"
-              continue
-            fi
-            echo "pack: $dir"
-            (cd "$dir" && npm pack --dry-run) || status=1
-          done < <(find config packages -maxdepth 2 -name package.json 2>/dev/null | sort)
-          exit $status
+        run: pnpm verify:packaging

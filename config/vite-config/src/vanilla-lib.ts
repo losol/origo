@@ -2,7 +2,7 @@ import { defineConfig, type UserConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'node:path';
 
-import { getRuntimeDependencyExternals, NODE_BUILTINS_EXTERNAL } from './externals.ts';
+import { getRuntimeDependencyExternals, NODE_BUILTINS_EXTERNAL } from './externals.js';
 
 export interface VanillaLibConfig {
   /**

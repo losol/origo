@@ -6,6 +6,12 @@ Shared Vite configurations for Eventuras monorepo libraries.
 
 This package provides reusable Vite configuration presets for different types of libraries in the Eventuras monorepo. It helps maintain consistency, reduces duplication, and makes it easier to update build configurations across all libraries.
 
+## Requirements
+
+- Node.js 24+
+- Vite 7 or 8 (peer dependency)
+- TypeScript 6 in the consuming package — the declaration step (`vite-plugin-dts` v5) needs the TypeScript JS Compiler API, which TypeScript 7 no longer ships by default
+
 ## Presets
 
 ### Vanilla Library (`vanilla-lib`)
@@ -169,3 +175,14 @@ export default defineReactLibConfig({
 ### Build errors with Next.js
 - Use `next-lib` preset instead of `react-lib`
 - Check that Next.js packages are in `external` array
+
+### `ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`
+- Upgrade to 0.3.0 or later. Versions up to 0.2.2 exported raw TypeScript sources, which Node refuses to load from `node_modules`. Workarounds such as `NODE_OPTIONS="--import tsx"` or `vite build --configLoader runner` are no longer needed and can be removed.
+
+## Development
+
+The published package is compiled output, not sources: `pnpm build` runs `tsc` and
+emits `dist/` (ESM + declarations), and `exports` points there. Do not repoint
+`exports` at `src/` — Node never strips types for files under `node_modules`, so
+that breaks every consumer installing from the registry. `pnpm verify:packaging`
+at the repo root checks this.
