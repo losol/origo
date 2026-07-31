@@ -31,10 +31,10 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "clean": "rm -rf dist",
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
     "dev": "tsc -p tsconfig.json --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "prepack": "pnpm run clean && pnpm run build"
+    "prepack": "npm run clean && npm run build"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.2",

@@ -63,22 +63,28 @@ for (const manifest of manifests) {
   const files = packedFiles(dir);
 
   const targets = [
-    ...collectExportTargets(pkg.exports),
-    ...collectExportTargets(pkg.bin),
-    pkg.main,
-    pkg.module,
-    pkg.types,
-  ].filter(t => typeof t === 'string' && t.startsWith('.'));
+    ...collectExportTargets(pkg.exports).map(t => ({ field: 'exports', target: t })),
+    ...collectExportTargets(pkg.bin).map(t => ({ field: 'bin', target: t })),
+    { field: 'main', target: pkg.main },
+    { field: 'module', target: pkg.module },
+    { field: 'types', target: pkg.types },
+  ].filter(({ target }) => typeof target === 'string' && target.startsWith('.'));
 
-  for (const target of new Set(targets)) {
+  const seen = new Set();
+
+  for (const { field, target } of targets) {
     // Wildcard subpaths can't be checked against a static file list.
-    if (target.includes('*')) continue;
+    if (target.includes('*') || seen.has(target)) continue;
+    seen.add(target);
 
     const relative = posix.normalize(target.replace(/^\.\//, ''));
 
-    if (/\.(c|m)?tsx?$/.test(relative) && !relative.endsWith('.d.ts')) {
+    // `.d.ts`, `.d.mts` and `.d.cts` are declaration output, not sources.
+    const isDeclaration = /\.d\.(c|m)?ts$/.test(relative);
+
+    if (/\.(c|m)?tsx?$/.test(relative) && !isDeclaration) {
       console.error(
-        `  ERROR ${pkg.name}: exports "${target}" points at TypeScript source. ` +
+        `  ERROR ${pkg.name}: "${field}" points at TypeScript source ("${target}"). ` +
           `Node cannot strip types under node_modules — publish compiled JS instead.`
       );
       failed = true;
@@ -87,8 +93,8 @@ for (const manifest of manifests) {
 
     if (!files.has(relative)) {
       console.error(
-        `  ERROR ${pkg.name}: "${target}" is referenced by the manifest but is ` +
-          `not in the tarball (check "files" and the build output).`
+        `  ERROR ${pkg.name}: "${field}" references "${target}", which is not in ` +
+          `the tarball (check "files" and the build output).`
       );
       failed = true;
     }
