@@ -38,6 +38,8 @@ jobs:
 
       # Pending changesets -> open/update the "Version Packages" PR.
       # No pending changesets but unreleased versions -> publish them.
+      # `pnpm release` builds the workspace before `changeset publish`, so no
+      # package can be published without its compiled output.
       - name: Version or publish
         id: changesets
         uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0

@@ -5,8 +5,16 @@ import dts from 'vite-plugin-dts';
 import { resolve } from 'node:path';
 import { glob } from 'glob';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 
-import { getRuntimeDependencyExternals, NODE_BUILTINS_EXTERNAL } from './externals.ts';
+import { getRuntimeDependencyExternals, NODE_BUILTINS_EXTERNAL } from './externals.js';
+
+/**
+ * ESM has no `require`. This one is bound to this module so the SWC plugin can
+ * stay lazily loaded — it drags in the native `@swc/core` binary, which most
+ * consumers never need.
+ */
+const requireFromHere = createRequire(import.meta.url);
 
 /**
  * Plugin to preserve 'use client' directives in React Server Components.
@@ -155,8 +163,8 @@ export function defineReactLibConfig(config: ReactLibConfig): UserConfig {
 
   // Add React plugin (SWC or standard)
   if (useSWC) {
-    // Dynamically import SWC plugin only when needed
-    const reactSwc = require('@vitejs/plugin-react-swc').default;
+    // Load the SWC plugin only when actually requested
+    const reactSwc = requireFromHere('@vitejs/plugin-react-swc').default;
     plugins.push(reactSwc());
   } else {
     plugins.push(react());
@@ -171,11 +179,13 @@ export function defineReactLibConfig(config: ReactLibConfig): UserConfig {
   plugins.push(
     dts({
       entryRoot: dtsOptions.entryRoot || 'src',
-      outDir: dtsOptions.outDir || 'dist',
+      // vite-plugin-dts v5 renamed `outDir` -> `outDirs` and
+      // `rollupTypes` -> `bundleTypes`; the preset keeps the old names.
+      outDirs: dtsOptions.outDir || 'dist',
       include: ['src/**/*'],
       exclude: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/*.stories.tsx'],
       copyDtsFiles: true,
-      rollupTypes: dtsOptions.rollupTypes || false,
+      bundleTypes: dtsOptions.rollupTypes || false,
     })
   );
 
