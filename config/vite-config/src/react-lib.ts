@@ -17,6 +17,15 @@ import { getRuntimeDependencyExternals, NODE_BUILTINS_EXTERNAL } from './externa
 const requireFromHere = createRequire(import.meta.url);
 
 /**
+ * Strip leading whitespace and any interleaved mix of line and block comments,
+ * so a directive check sees the first real token. Sequential per-style passes
+ * miss mixed orders (a line comment, then a block comment, then the directive).
+ */
+function stripLeadingComments(code: string): string {
+  return code.replace(/^(?:\s+|\/\*[\s\S]*?\*\/\s*|\/\/.*(?:\r?\n|$)\s*)+/, '');
+}
+
+/**
  * Plugin to preserve 'use client' directives in React Server Components.
  * This ensures client-side code is properly marked when building for Next.js.
  */
@@ -33,12 +42,10 @@ function preserveUseClient() {
             try {
               const content = fs.readFileSync(id, 'utf-8');
               // Remove leading comments to check for 'use client'
-              const withoutComments = content
-                .replace(/^(\s*\/\/.*\n)+/, '')
-                .replace(/^(\s*\/\*[\s\S]*?\*\/\s*)/, '');
+              const withoutComments = stripLeadingComments(content);
               return (
-                withoutComments.trimStart().startsWith("'use client'") ||
-                withoutComments.trimStart().startsWith('"use client"')
+                withoutComments.startsWith("'use client'") ||
+                withoutComments.startsWith('"use client"')
               );
             } catch {
               return false;
@@ -46,7 +53,10 @@ function preserveUseClient() {
           });
 
           if (hasClientDirective) {
-            const codeStart = chunkData.code.trimStart();
+            // Ignore leading banner/license comments (e.g. Rollup's
+            // output.banner) when checking for the directive, so we don't
+            // prepend a duplicate above a directive that's already there.
+            const codeStart = stripLeadingComments(chunkData.code);
             if (!codeStart.startsWith("'use client'") && !codeStart.startsWith('"use client"')) {
               chunkData.code = `'use client';\n${chunkData.code}`;
             }
