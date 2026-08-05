@@ -1,6 +1,6 @@
 {
   "name": "@eventuras/eslint-config",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Shared ESLint configurations for Eventuras projects",
   "homepage": "https://github.com/losol/origo/tree/main/config/eslint-config#readme",
   "bugs": {
