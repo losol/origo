@@ -36,3 +36,7 @@ copy them all. Publishing the whole set from a neutral home fixes that.
 
 Managed with [changesets](https://github.com/changesets/changesets). Add a
 changeset with `pnpm changeset`, then release with `pnpm release`.
+
+Dependabot PRs that change a published package's `dependencies` or
+`peerDependencies` get a patch changeset committed automatically
+(`.github/workflows/dependabot-changeset.yml`), so the bump actually ships.
