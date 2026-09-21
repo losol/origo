@@ -47,6 +47,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@opentelemetry/api-logs": ">=0.200.0 <1.0.0",
     "pino": "^10.3.1"
   },
   "devDependencies": {
@@ -55,27 +56,14 @@
     "@eventuras/vite-config": "workspace:*",
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/api-logs": "^0.222.0",
-    "@opentelemetry/instrumentation-pino": "^0.68.0",
     "@opentelemetry/sdk-logs": "^0.222.0",
     "vite": "^8.1.0",
     "vitest": "^4.1.4"
   },
   "peerDependencies": {
-    "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/api-logs": ">=0.200.0 <1.0.0",
-    "@opentelemetry/instrumentation-pino": ">=0.50.0 <1.0.0",
     "@opentelemetry/sdk-logs": ">=0.200.0 <1.0.0"
   },
   "peerDependenciesMeta": {
-    "@opentelemetry/api": {
-      "optional": true
-    },
-    "@opentelemetry/api-logs": {
-      "optional": true
-    },
-    "@opentelemetry/instrumentation-pino": {
-      "optional": true
-    },
     "@opentelemetry/sdk-logs": {
       "optional": true
     }
