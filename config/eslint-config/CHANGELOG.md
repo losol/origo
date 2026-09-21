@@ -1,5 +1,13 @@
 # @eventuras/eslint-config
 
+## 1.0.5
+
+### Patch Changes
+
+- 9f41e73: Update dependencies:
+
+  - `eslint-plugin-simple-import-sort`: `^13.0.0` → `^14.0.0`
+
 ## 1.0.4
 
 ### Patch Changes
