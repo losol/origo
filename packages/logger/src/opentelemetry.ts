@@ -49,6 +49,7 @@ import { PinoTransport } from './transports/pino';
  * Defined locally to avoid requiring OTel types at compile time.
  */
 export interface LogRecordProcessor {
+  onEmit(logRecord: unknown, context?: unknown): void;
   shutdown(): Promise<void>;
   forceFlush(): Promise<void>;
 }
@@ -162,10 +163,7 @@ async function resolveLoggerProvider(
 
   if (options.logRecordProcessor) {
     const { LoggerProvider } = await loadPeer('@opentelemetry/sdk-logs', () => import('@opentelemetry/sdk-logs'));
-    // The option is typed structurally so callers need no OTel types; at
-    // runtime it is the SDK's own processor.
-    const processor = options.logRecordProcessor as unknown as import('@opentelemetry/sdk-logs').LogRecordProcessor;
-    return { provider: new LoggerProvider({ processors: [processor] }), owned: true };
+    return { provider: new LoggerProvider({ processors: [options.logRecordProcessor] }), owned: true };
   }
 
   return { provider: logs.getLoggerProvider(), owned: false };
