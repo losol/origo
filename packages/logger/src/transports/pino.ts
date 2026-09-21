@@ -9,6 +9,7 @@
  * `node:stream` imports so the main entry stays browser/edge-safe.
  */
 import pino, { type Logger as PinoLogger, type LoggerOptions as PinoLoggerOptions } from 'pino';
+import { forwardLogLine } from '../sink';
 import type { LogLevel, LogTransport } from '../types';
 
 /**
@@ -55,6 +56,19 @@ export class PinoTransport implements LogTransport {
         redact: { paths: options.redact, censor: '[REDACTED]' },
       }),
       ...options.pinoOptions,
+    };
+
+    // Hand every serialized line — after redaction, and from child loggers
+    // too, since they inherit hooks — to the OpenTelemetry bridge when one is
+    // set up. A caller-supplied streamWrite hook still runs first.
+    const userStreamWrite = options.pinoOptions?.hooks?.streamWrite;
+    pinoOpts.hooks = {
+      ...options.pinoOptions?.hooks,
+      streamWrite: (line) => {
+        const out = userStreamWrite ? userStreamWrite(line) : line;
+        forwardLogLine(out);
+        return out;
+      },
     };
 
     if (options.destinationStream) {

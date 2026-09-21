@@ -234,16 +234,15 @@ Redacts `authorization`, `cookie`, `set-cookie`, `x-api-key`, `x-auth-token`, an
 
 ## OpenTelemetry Integration
 
-Send logs to any OTel-compatible backend (Sentry, Grafana, Jaeger, etc.) without vendor lock-in.
+Send logs to any OTel-compatible backend (Sentry, Grafana, the Aspire dashboard, etc.) without vendor lock-in. Every line the Pino transport writes — after redaction, from every logger, including ones created before setup — is also emitted as an OpenTelemetry log record.
 
 ### Install OTel Packages
 
 ```bash
-pnpm add @opentelemetry/api @opentelemetry/api-logs @opentelemetry/sdk-logs \
-  @opentelemetry/instrumentation-pino @opentelemetry/exporter-logs-otlp-http
+pnpm add @opentelemetry/sdk-logs @opentelemetry/exporter-logs-otlp-http
 ```
 
-These are optional peer dependencies — the library works fine without them.
+`@opentelemetry/sdk-logs` is an optional peer dependency — the logger uses your app's copy, the same one your processor comes from. Nothing else is needed.
 
 ### Setup
 
@@ -252,15 +251,17 @@ import { setupOpenTelemetryLogger } from "@eventuras/logger/opentelemetry";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
 
-setupOpenTelemetryLogger({
+await setupOpenTelemetryLogger({
   serviceName: "my-app",
-  logRecordProcessor: new BatchLogRecordProcessor(
-    new OTLPLogExporter({
-      url: process.env.OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
-    }),
-  ),
+  logRecordProcessor: new BatchLogRecordProcessor({
+    exporter: new OTLPLogExporter(), // reads the OTEL_EXPORTER_OTLP_* variables
+  }),
 });
 ```
+
+Already running the OpenTelemetry Node SDK? Call `setupOpenTelemetryLogger()` without options to emit to the globally registered LoggerProvider, or pass one as `loggerProvider`.
+
+Setup never throws or rejects: if it can't start, it logs an error and logging to stdout carries on.
 
 ### Shutdown
 
