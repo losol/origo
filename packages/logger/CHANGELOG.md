@@ -1,5 +1,19 @@
 # @eventuras/logger
 
+## 0.9.0
+
+### Minor Changes
+
+- 6d1840b: Fix OpenTelemetry log export, which never worked. `setupOpenTelemetryLogger` crashed with `addLogRecordProcessor is not a function` on `@opentelemetry/sdk-logs` 0.200 and later, and even before that, `@opentelemetry/instrumentation-pino` could not patch the logger's ESM import of Pino, so no log record was ever emitted. The logger now bridges Pino output to OpenTelemetry itself: every line — after redaction, from every logger, including ones created before setup — is emitted as a log record.
+
+  Breaking changes:
+
+  - `@opentelemetry/instrumentation-pino` and `@opentelemetry/api` are no longer peer dependencies, and `@opentelemetry/api-logs` is now a regular dependency. `@opentelemetry/sdk-logs` stays an optional peer, needed only with `logRecordProcessor`.
+  - `OTelLoggerProvider` now describes `getLogger()` instead of `addLogRecordProcessor()`.
+  - With neither `logRecordProcessor` nor `loggerProvider`, logs go to the globally registered LoggerProvider.
+  - `shutdownOpenTelemetryLogger()` shuts down only a provider it created; a provider passed in, or the global one, is flushed instead.
+  - Setup never rejects: if it can't start, it logs an error.
+
 ## 0.8.1
 
 ### Patch Changes
@@ -7,10 +21,12 @@
 - a29b507: Stop bundling runtime dependencies into published library output, and stop minifying.
 
   The vanilla/react/next library presets used to inline every transitive dep (e.g. `oauth4webapi` was bundled into `@eventuras/fides-auth`) and minify class/function names. Two consequences:
+
   - **`instanceof` failed across module boundaries.** A consumer importing `ResponseBodyError` from `openid-client` got a different class than the one a library threw, because the library carried its own bundled+renamed copy.
   - **Stack traces were unreadable** — minified names like `j` instead of `ResponseBodyError`.
 
   The presets now:
+
   - Auto-externalize every entry in the consumer's `dependencies`, `peerDependencies`, and `optionalDependencies` (plus `node:*` built-ins).
   - Set `build.minify: false` (libraries should not minify — consumers minify their own bundle).
   - Emit sourcemaps so consumer stack traces map back to original sources.
@@ -22,6 +38,7 @@
 ### Minor Changes
 
 - 7d2b896: Logger hygiene pass:
+
   - **BREAKING:** `prettyPrint` options on `PinoTransport` and
     `LoggerConfig` are removed, and the default transport no longer
     auto-enables pretty output based on `NODE_ENV`. Importing the main
@@ -77,6 +94,7 @@
 - 6e7d2d4: Add pluggable transport architecture for structured logging.
 
   ## What changed
+
   - **LogTransport interface**: New extension point for custom log backends. Implement `log()`, `child()`, and optionally `flush()`/`shutdown()` to route logs anywhere.
   - **PinoTransport** (default): Wraps Pino — used automatically with zero config. Exposes `.pino` for advanced integrations (OTel instrumentation, custom serializers).
   - **ConsoleTransport**: Lightweight transport using `console.log/warn/error`. Works in browsers, edge runtimes, and test environments without Node.js dependencies.
@@ -119,6 +137,7 @@
   `Logger.getPinoInstance()` is deprecated — use `Logger.getTransport()` or cast to `PinoTransport` if you need the raw Pino instance.
 
   ## Package metadata
+
   - Package is now publishable (removed `private` flag)
   - Added `license`, `repository`, `homepage`, `bugs`, `keywords`, `engines` fields
   - ESM-only, Node 20+
@@ -128,11 +147,13 @@
 ### Minor Changes
 
 - ### 🧱 Features
+
   - Integrate OpenTelemetry for enhanced logging capabilities with distributed tracing support
   - Integrate Sentry transport for error tracking and monitoring
   - Add separate Debug utilities for development debugging
 
   ### 🐞 Bug Fixes
+
   - Move `@opentelemetry/api` to regular dependencies for proper resolution
 
 ## 0.5.0
