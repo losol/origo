@@ -37,34 +37,20 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       # Pending changesets -> open/update the "Version Packages" PR.
-      # No pending changesets but unreleased versions -> publish them.
+      # No pending changesets but unreleased versions -> publish them, then
+      # push a git tag and create a GitHub release for each published package.
       # `pnpm release` builds the workspace before `changeset publish`, so no
       # package can be published without its compiled output.
+      #
+      # Action v2 requires Changesets CLI v3: it learns what was published from
+      # the file the CLI writes to $CHANGESETS_OUTPUT, which `pnpm release`
+      # inherits from the action's environment.
       - name: Version or publish
-        id: changesets
         uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
-          version: pnpm changeset:version
-          publish: pnpm release
-          commit: 'chore: version packages'
-          title: 'chore: version packages'
+          version-script: pnpm changeset:version
+          publish-script: pnpm release
+          commit-message: 'chore: version packages'
+          pr-title: 'chore: version packages'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
-
-      - name: Create GitHub releases
-        if: steps.changesets.outputs.published == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PUBLISHED: ${{ steps.changesets.outputs.publishedPackages }}
-        run: |
-          echo "$PUBLISHED" | jq -c '.[]' | while read -r pkg; do
-            NAME=$(echo "$pkg" | jq -r '.name')
-            VERSION=$(echo "$pkg" | jq -r '.version')
-            TAG="${NAME}@${VERSION}"
-            TITLE="$(echo "$NAME" | sed 's|@eventuras/||') v${VERSION}"
-
-            echo "Creating release for ${TAG}"
-            gh release create "$TAG" --title "$TITLE" --generate-notes \
-              || echo "Failed to create release for ${TAG}"
-          done
