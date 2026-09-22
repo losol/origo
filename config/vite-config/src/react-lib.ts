@@ -1,7 +1,6 @@
 import { defineConfig, type UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import dts from 'vite-plugin-dts';
 import { resolve } from 'node:path';
 import { glob } from 'glob';
 import fs from 'node:fs';
@@ -110,27 +109,6 @@ export interface ReactLibConfig {
   useSWC?: boolean;
 
   /**
-   * TypeScript declaration options.
-   */
-  dts?: {
-    /**
-     * Entry root for DTS generation.
-     * @default 'src'
-     */
-    entryRoot?: string;
-    /**
-     * Output directory for .d.ts files.
-     * @default 'dist'
-     */
-    outDir?: string;
-    /**
-     * Roll up types into a single .d.ts file.
-     * @default false
-     */
-    rollupTypes?: boolean;
-  };
-
-  /**
    * Additional Vite configuration to merge.
    */
   viteConfig?: UserConfig;
@@ -138,7 +116,10 @@ export interface ReactLibConfig {
 
 /**
  * Vite configuration preset for React libraries.
- * Includes React plugin, TypeScript declarations, and common React externals.
+ * Includes React plugin and common React externals.
+ *
+ * Emits JavaScript only. Declarations come from the package's own compiler:
+ * `vite build && tsc --emitDeclarationOnly`.
  */
 export function defineReactLibConfig(config: ReactLibConfig): UserConfig {
   const {
@@ -148,7 +129,6 @@ export function defineReactLibConfig(config: ReactLibConfig): UserConfig {
     preserveModules = true,
     preserveUseClientDirectives = true,
     useSWC = false,
-    dts: dtsOptions = {},
     viteConfig = {},
   } = config;
 
@@ -184,20 +164,6 @@ export function defineReactLibConfig(config: ReactLibConfig): UserConfig {
   if (tailwind) {
     plugins.push(tailwindcss());
   }
-
-  // Add DTS plugin
-  plugins.push(
-    dts({
-      entryRoot: dtsOptions.entryRoot || 'src',
-      // vite-plugin-dts v5 renamed `outDir` -> `outDirs` and
-      // `rollupTypes` -> `bundleTypes`; the preset keeps the old names.
-      outDirs: dtsOptions.outDir || 'dist',
-      include: ['src/**/*'],
-      exclude: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/*.stories.tsx'],
-      copyDtsFiles: true,
-      bundleTypes: dtsOptions.rollupTypes || false,
-    })
-  );
 
   // Add use client preservation if enabled
   if (preserveUseClientDirectives) {

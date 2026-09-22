@@ -45,7 +45,7 @@
     "schema"
   ],
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && tsc --emitDeclarationOnly",
     "dev": "vite build --watch",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit"

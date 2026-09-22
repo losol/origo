@@ -10,7 +10,35 @@ This package provides reusable Vite configuration presets for different types of
 
 - Node.js 24+
 - Vite 7 or 8 (peer dependency)
-- TypeScript 6 in the consuming package — the declaration step (`vite-plugin-dts` v5) needs the TypeScript JS Compiler API, which TypeScript 7 no longer ships by default
+- TypeScript 6 or 7 in the consuming package, used to emit declarations (see below)
+
+## Type declarations
+
+The presets build JavaScript only. Emit declarations with the TypeScript compiler
+the package already has, **after** `vite build` (Vite empties `dist` first):
+
+```json
+{
+  "scripts": {
+    "build": "vite build && tsc --emitDeclarationOnly"
+  }
+}
+```
+
+With `@eventuras/typescript-config/library.json` or `react-library.json`,
+`outDir` already resolves to the package's own `dist`. Otherwise set
+`"outDir": "dist"` in the package's `tsconfig.json`.
+
+Keep test and story files out of the emitted types: the shared base config
+excludes them, but a package `tsconfig.json` that sets its own `exclude` replaces
+that list. Re-add the patterns, or point the build at a `tsconfig.build.json`
+that does (`tsc -p tsconfig.build.json --emitDeclarationOnly`).
+
+`tsc` does not rewrite path aliases such as `@/…` in emitted declarations. Use
+relative imports in anything reachable from a public export.
+
+`vite build --watch` rebuilds JavaScript only. Run `tsc --emitDeclarationOnly --watch`
+alongside it when you need live types.
 
 ## Presets
 
@@ -52,7 +80,6 @@ export default defineReactLibConfig({
 
 **Features:**
 - React plugin (Babel or SWC)
-- TypeScript declaration generation
 - Optional Tailwind CSS support
 - 'use client' directive preservation for RSC
 - Configurable module preservation
@@ -106,10 +133,6 @@ All presets support these options:
 - **`preserveModules`**: Keep source structure in output (default: `true`)
 - **`preserveUseClientDirectives`**: Preserve 'use client' for RSC (default: `true`)
 - **`useSWC`**: Use SWC instead of Babel (default: `false`)
-- **`dts`**: TypeScript declaration options
-  - `entryRoot`: Source root (default: `'src'`)
-  - `outDir`: Output directory (default: `'dist'`)
-  - `rollupTypes`: Bundle types into single file (default: `false`)
 
 ## Migration Guide
 
@@ -164,9 +187,8 @@ export default defineReactLibConfig({
 ## Troubleshooting
 
 ### Types not generated
-- Check that your TypeScript files are in `src/`
-- Ensure test files use `.test.ts` or `.spec.ts` extensions
-- Check `dts.entryRoot` and `dts.outDir` options
+- Since 0.4.0 the presets no longer emit declarations. Add `tsc --emitDeclarationOnly` after `vite build` in the package's build script (see [Type declarations](#type-declarations))
+- If `.d.ts` files land outside the package, `outDir` is being resolved relative to a shared config. Upgrade `@eventuras/typescript-config`, or set `outDir` in the package's own `tsconfig.json`
 
 ### 'use client' directives missing
 - Ensure `preserveUseClientDirectives: true` (default for Next.js)
