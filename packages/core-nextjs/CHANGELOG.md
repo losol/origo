@@ -1,5 +1,13 @@
 # @eventuras/core-nextjs
 
+## 0.1.4
+
+### Patch Changes
+
+- 7f9e1d6: Emit type declarations with `tsc` instead of `vite-plugin-dts`. The declarations now keep
+  JSDoc comments and `import type`; `@eventuras/core` no longer ships an unreferenced
+  `useragents/patterns.json.d.ts`.
+
 ## 0.1.3
 
 ### Patch Changes
