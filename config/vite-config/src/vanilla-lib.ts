@@ -1,5 +1,4 @@
 import { defineConfig, type UserConfig } from 'vite';
-import dts from 'vite-plugin-dts';
 import { resolve } from 'node:path';
 
 import { getRuntimeDependencyExternals, NODE_BUILTINS_EXTERNAL } from './externals.js';
@@ -40,6 +39,9 @@ export interface VanillaLibConfig {
  * - Minification is OFF — consumers minify their own bundle, and unminified
  *   output preserves class names (so `instanceof` and stack traces work).
  * - Sourcemaps ON for debuggable consumer stack traces.
+ *
+ * Emits JavaScript only. Declarations come from the package's own compiler:
+ * `vite build && tsc --emitDeclarationOnly`.
  */
 export function defineVanillaLibConfig(config: VanillaLibConfig): UserConfig {
   const { entry, name, external, viteConfig = {} } = config;
@@ -49,13 +51,7 @@ export function defineVanillaLibConfig(config: VanillaLibConfig): UserConfig {
   const userExternals = Array.isArray(external) ? external : [];
 
   return defineConfig({
-    plugins: [
-      dts({
-        include: ['src/**/*'],
-        exclude: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],
-      }),
-      ...(viteConfig.plugins || []),
-    ],
+    plugins: [...(viteConfig.plugins || [])],
     build: {
       minify: false,
       sourcemap: true,

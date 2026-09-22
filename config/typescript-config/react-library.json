@@ -10,7 +10,7 @@
     "types": ["react", "react-dom"],
     "skipLibCheck": true,
     "noEmit": false,
-    "outDir": "dist"
+    "outDir": "${configDir}/dist"
   },
   "include": [
     "src/**/*"
