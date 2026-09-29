@@ -8,6 +8,6 @@
     "noEmit": false
   },
   "include": [
-    "src/**/*"
+    "${configDir}/src/**/*"
   ]
 }
