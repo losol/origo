@@ -13,6 +13,6 @@
     "outDir": "${configDir}/dist"
   },
   "include": [
-    "src/**/*"
+    "${configDir}/src/**/*"
   ]
 }
