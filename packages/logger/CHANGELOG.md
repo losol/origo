@@ -1,5 +1,11 @@
 # @eventuras/logger
 
+## 0.9.2
+
+### Patch Changes
+
+- 7e6dff1: Errors logged under `error` keep their message and stack. Pino serialized an Error only under `err`, so `logger.error(err)` and `logger.error({ error })` wrote `"error":{}`; the Pino transport now serializes `error` the same way.
+
 ## 0.9.1
 
 ### Patch Changes
