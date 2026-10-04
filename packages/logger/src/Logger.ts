@@ -299,7 +299,8 @@ export class Logger {
 
   /**
    * Log at `error` level. Accepts an `Error` instance, a data object, or a plain string.
-   * Error instances are serialized automatically.
+   * An Error instance is logged under `error`; the Pino transport serializes an
+   * Error under `error` or `err` to its type, message, stack and cause.
    */
   error(errorOrData?: unknown, msg?: string): void {
     const transport = this.childTransport ?? Logger.transport;

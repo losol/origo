@@ -1,5 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { PinoTransport } from './pino.js';
+import { Logger } from '../Logger.js';
+import { PinoTransport, type PinoTransportOptions } from './pino.js';
+
+/** A transport whose output lines are collected, parsed, in `lines`. */
+function capture(options: PinoTransportOptions = {}) {
+  const lines: Record<string, any>[] = [];
+  const transport = new PinoTransport({
+    ...options,
+    destinationStream: { write: (chunk) => lines.push(JSON.parse(String(chunk))) },
+  });
+  return { transport, lines };
+}
 
 describe('PinoTransport', () => {
   it('creates with default options', () => {
@@ -63,5 +74,65 @@ describe('PinoTransport', () => {
     expect(() => {
       transport.log('info', { password: 'hunter2', ok: true }, 'redact test');
     }).not.toThrow();
+  });
+
+  describe('errors', () => {
+    it('keeps the message and stack of an Error under `error`', () => {
+      const { transport, lines } = capture();
+      transport.log('error', { error: new Error('boom'), id: 1 }, 'failed');
+      expect(lines[0]).toMatchObject({
+        error: { type: 'Error', message: 'boom', stack: expect.stringContaining('boom') },
+        id: 1,
+        msg: 'failed',
+      });
+    });
+
+    it('still serializes `err`', () => {
+      const { transport, lines } = capture();
+      transport.log('error', { err: new Error('boom') });
+      expect(lines[0].err).toMatchObject({ type: 'Error', message: 'boom' });
+    });
+
+    it('keeps the cause', () => {
+      const { transport, lines } = capture();
+      const error = new Error('outer', { cause: new TypeError('inner') });
+      transport.log('error', { error });
+      // Pino's serializer folds the cause into the message and stack.
+      expect(lines[0].error.message).toBe('outer: inner');
+      expect(lines[0].error.stack).toContain('caused by: TypeError: inner');
+    });
+
+    it('leaves anything else under `error` as it is', () => {
+      const { transport, lines } = capture();
+      transport.log('error', { error: 'plain' });
+      transport.log('error', { error: { code: 'E1' } });
+      expect(lines[0].error).toBe('plain');
+      expect(lines[1].error).toEqual({ code: 'E1' });
+    });
+
+    it('serializes errors in child transports too', () => {
+      const { transport, lines } = capture();
+      transport.child({ namespace: 'test' }).log('error', { error: new Error('boom') });
+      expect(lines[0]).toMatchObject({ namespace: 'test', error: { message: 'boom' } });
+    });
+
+    it("keeps a caller's own serializers, alongside `error`", () => {
+      const { transport, lines } = capture({
+        pinoOptions: { serializers: { user: (u: { id: number }) => ({ id: u.id }) } },
+      });
+      transport.log('error', { user: { id: 7, secret: 'x' }, error: new Error('boom') });
+      expect(lines[0].user).toEqual({ id: 7 });
+      expect(lines[0].error.message).toBe('boom');
+    });
+
+    it('serializes what Logger#error and #fatal pass for an Error', () => {
+      const { transport, lines } = capture({ level: 'trace' });
+      Logger.configure({ transport });
+      const logger = Logger.create({ namespace: 'test' });
+      logger.error(new Error('boom'), 'failed');
+      logger.fatal(new Error('down'));
+      expect(lines[0]).toMatchObject({ error: { message: 'boom' }, msg: 'failed' });
+      expect(lines[1]).toMatchObject({ error: { message: 'down' } });
+    });
   });
 });
