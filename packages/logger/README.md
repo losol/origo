@@ -219,6 +219,16 @@ Logger.configure({
 
 For HTTP headers specifically, prefer [`redactHeaders`](#http-header-redaction) — it normalizes the object and handles `Headers` instances in addition to plain objects.
 
+## Errors
+
+Pass an `Error` straight to `logger.error()`, or under `error` (or `err`) in the data object. The Pino transport writes it with its type, message, stack and cause:
+
+```typescript
+logger.error(error, "Failed to save event");
+logger.error({ error, eventId: 42 }, "Failed to save event");
+// → "error":{"type":"Error","message":"…","stack":"Error: …"}
+```
+
 ## HTTP Header Redaction
 
 Utility for redacting sensitive HTTP headers:

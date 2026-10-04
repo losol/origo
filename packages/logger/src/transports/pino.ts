@@ -56,6 +56,14 @@ export class PinoTransport implements LogTransport {
         redact: { paths: options.redact, censor: '[REDACTED]' },
       }),
       ...options.pinoOptions,
+      // Pino serializes an Error only under `err`; elsewhere JSON.stringify
+      // turns it into `{}`. The Logger puts Errors under `error`, so that key
+      // gets the same serializer. A caller's own serializers still win.
+      serializers: {
+        err: pino.stdSerializers.err,
+        error: pino.stdSerializers.err,
+        ...options.pinoOptions?.serializers,
+      },
     };
 
     // Hand every serialized line — after redaction, and from child loggers
