@@ -1,6 +1,7 @@
 import { defineConfig, type UserConfig } from 'vite';
 import { resolve } from 'node:path';
 
+import { dts as emitDeclarations, type DtsOptions } from './dts.js';
 import { getRuntimeDependencyExternals, NODE_BUILTINS_EXTERNAL } from './externals.js';
 
 export interface VanillaLibConfig {
@@ -24,6 +25,15 @@ export interface VanillaLibConfig {
   external?: (string | RegExp)[] | false;
 
   /**
+   * Type declarations. After the JavaScript build, the package's own `tsc`
+   * emits `.d.ts` files into `outDir`, next to the `.js`, with test files
+   * left out and path aliases rewritten. Pass `false` to skip, or options to
+   * pick the tsconfig, entry root, include or exclude.
+   * @default true
+   */
+  dts?: boolean | DtsOptions;
+
+  /**
    * Additional Vite configuration to merge.
    */
   viteConfig?: UserConfig;
@@ -39,19 +49,20 @@ export interface VanillaLibConfig {
  * - Minification is OFF — consumers minify their own bundle, and unminified
  *   output preserves class names (so `instanceof` and stack traces work).
  * - Sourcemaps ON for debuggable consumer stack traces.
- *
- * Emits JavaScript only. Declarations come from the package's own compiler:
- * `vite build && tsc --emitDeclarationOnly`.
+ * - Type declarations emitted by the package's own `tsc` (see `dts`).
  */
 export function defineVanillaLibConfig(config: VanillaLibConfig): UserConfig {
-  const { entry, name, external, viteConfig = {} } = config;
+  const { entry, name, external, dts = true, viteConfig = {} } = config;
 
   const autoExternals =
     external === false ? [] : getRuntimeDependencyExternals();
   const userExternals = Array.isArray(external) ? external : [];
 
   return defineConfig({
-    plugins: [...(viteConfig.plugins || [])],
+    plugins: [
+      ...(viteConfig.plugins || []),
+      ...(dts === false ? [] : [emitDeclarations(dts === true ? {} : dts)]),
+    ],
     build: {
       minify: false,
       sourcemap: true,

@@ -62,6 +62,19 @@ for (const manifest of manifests) {
   console.log(`pack: ${dir} (${pkg.name})`);
   const files = packedFiles(dir);
 
+  // A declaration for a test, spec or story file means the declaration emit
+  // compiled files it should have left out — usually a package tsconfig whose
+  // own "exclude" replaced the shared one.
+  for (const file of files) {
+    if (/\.(test|spec|stories)\.d\.(c|m)?ts(\.map)?$/.test(file)) {
+      console.error(
+        `  ERROR ${pkg.name}: tarball contains "${file}", a declaration for a test file. ` +
+          `Keep tests out of the declaration emit.`
+      );
+      failed = true;
+    }
+  }
+
   const targets = [
     ...collectExportTargets(pkg.exports).map(t => ({ field: 'exports', target: t })),
     ...collectExportTargets(pkg.bin).map(t => ({ field: 'bin', target: t })),

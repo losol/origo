@@ -24,6 +24,10 @@
     "./next-lib": {
       "types": "./dist/next-lib.d.ts",
       "import": "./dist/next-lib.js"
+    },
+    "./dts": {
+      "types": "./dist/dts.d.ts",
+      "import": "./dist/dts.js"
     }
   },
   "files": [
@@ -33,6 +37,7 @@
     "build": "tsc -p tsconfig.json",
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
     "dev": "tsc -p tsconfig.json --watch",
+    "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepack": "npm run clean && npm run build"
   },
@@ -46,10 +51,17 @@
     "@eventuras/typescript-config": "workspace:*",
     "@types/node": "^24.12.0",
     "typescript": "^7.0.2",
-    "vite": "^8.1.0"
+    "vite": "^8.1.0",
+    "vitest": "^5.0.0"
   },
   "peerDependencies": {
+    "typescript": ">=5.5",
     "vite": "^7.0.0 || ^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
   },
   "publishConfig": {
     "access": "public"
