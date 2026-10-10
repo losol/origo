@@ -41,7 +41,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly",
+    "build": "vite build",
     "dev": "vite build --watch",
     "test": "vitest run",
     "test:watch": "vitest"

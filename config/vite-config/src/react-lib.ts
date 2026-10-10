@@ -6,6 +6,7 @@ import { glob } from 'glob';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 
+import { dts as emitDeclarations, type DtsOptions } from './dts.js';
 import { getRuntimeDependencyExternals, NODE_BUILTINS_EXTERNAL } from './externals.js';
 
 /**
@@ -109,6 +110,16 @@ export interface ReactLibConfig {
   useSWC?: boolean;
 
   /**
+   * Type declarations. After the JavaScript build, the package's own `tsc`
+   * emits `.d.ts` files into `outDir`, mirroring `src`, with test and story
+   * files left out and the `@/` alias rewritten to relative imports. Pass
+   * `false` to skip, or options to pick the tsconfig, entry root, include or
+   * exclude.
+   * @default true
+   */
+  dts?: boolean | DtsOptions;
+
+  /**
    * Additional Vite configuration to merge.
    */
   viteConfig?: UserConfig;
@@ -116,10 +127,8 @@ export interface ReactLibConfig {
 
 /**
  * Vite configuration preset for React libraries.
- * Includes React plugin and common React externals.
- *
- * Emits JavaScript only. Declarations come from the package's own compiler:
- * `vite build && tsc --emitDeclarationOnly`.
+ * Includes React plugin and common React externals, and emits type
+ * declarations with the package's own `tsc` (see `dts`).
  */
 export function defineReactLibConfig(config: ReactLibConfig): UserConfig {
   const {
@@ -129,6 +138,7 @@ export function defineReactLibConfig(config: ReactLibConfig): UserConfig {
     preserveModules = true,
     preserveUseClientDirectives = true,
     useSWC = false,
+    dts = true,
     viteConfig = {},
   } = config;
 
@@ -173,6 +183,11 @@ export function defineReactLibConfig(config: ReactLibConfig): UserConfig {
   // Add custom plugins from viteConfig
   if (viteConfig.plugins) {
     plugins.push(...viteConfig.plugins);
+  }
+
+  // Emit declarations after the JavaScript build
+  if (dts !== false) {
+    plugins.push(emitDeclarations(dts === true ? {} : dts));
   }
 
   return defineConfig({
