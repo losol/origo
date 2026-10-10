@@ -44,8 +44,7 @@
   ],
   "scripts": {
     "build": "vite build",
-    "dev": "vite build --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite build --watch"
   },
   "devDependencies": {
     "@eventuras/eslint-config": "workspace:*",
