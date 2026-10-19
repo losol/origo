@@ -55,7 +55,7 @@
     "@eventuras/typescript-config": "workspace:*",
     "@eventuras/vite-config": "workspace:*",
     "@opentelemetry/api": "^1.9.1",
-    "@opentelemetry/sdk-logs": "^0.222.0",
+    "@opentelemetry/sdk-logs": "^0.223.0",
     "typescript": "^7.0.2",
     "vite": "^8.1.0",
     "vitest": "^5.0.0"
